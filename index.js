@@ -44,6 +44,9 @@ app.post("/api/test", (req, res) => {
 
 
 // ===== STT API =====
+import axios from "axios";
+import FormData from "form-data";
+
 app.post("/api/stt", upload.single("file"), async (req, res) => {
     try {
         if (!req.file) {
@@ -52,20 +55,33 @@ app.post("/api/stt", upload.single("file"), async (req, res) => {
 
         console.log("🎧 Audio received:", req.file.path);
 
-        const transcription = await openai.audio.transcriptions.create({
-            file: fs.createReadStream(req.file.path),
-            model: "whisper-1",
-        });
+        const form = new FormData();
+        form.append("file", fs.createReadStream(req.file.path));
+        form.append("model", "whisper-1");
+
+        const response = await axios.post(
+            "https://api.openai.com/v1/audio/transcriptions",
+            form,
+            {
+                headers: {
+                    ...form.getHeaders(),
+                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                },
+                timeout: 120000, // ⚠️ QUAN TRỌNG
+                maxBodyLength: Infinity,
+                maxContentLength: Infinity,
+            }
+        );
 
         fs.unlinkSync(req.file.path);
 
         res.json({
-            text: transcription.text,
-            language: transcription.language,
+            text: response.data.text,
+            language: response.data.language,
         });
 
     } catch (err) {
-        console.error("Whisper error:", err);
+        console.error("Whisper error:", err?.response?.data || err);
 
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
@@ -74,6 +90,7 @@ app.post("/api/stt", upload.single("file"), async (req, res) => {
         res.status(500).json({ error: "Speech to text failed" });
     }
 });
+
 
 
 
