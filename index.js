@@ -52,13 +52,8 @@ app.post("/api/stt", upload.single("file"), async (req, res) => {
 
         console.log("🎧 Audio received:", req.file.path);
 
-        // Đọc file thành buffer (CHỐNG ECONNRESET)
-        const audioBuffer = fs.readFileSync(req.file.path);
-
         const transcription = await openai.audio.transcriptions.create({
-            file: new File([audioBuffer], "audio.webm", {
-                type: "audio/webm",
-            }),
+            file: fs.createReadStream(req.file.path),
             model: "whisper-1",
         });
 
@@ -79,6 +74,7 @@ app.post("/api/stt", upload.single("file"), async (req, res) => {
         res.status(500).json({ error: "Speech to text failed" });
     }
 });
+
 
 
 
