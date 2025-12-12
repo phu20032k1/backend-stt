@@ -86,8 +86,12 @@ app.get("/healthz", (req, res) => {
 });
 
 // ===== Start server =====
-app.listen(PORT, "0.0.0.0", () => {
+// ===== Start server =====
+const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 STT backend running on port ${PORT}`);
 });
+
+// Giữ kết nối lâu cho Railway
 server.keepAliveTimeout = 120000;
 server.headersTimeout = 120000;
+
