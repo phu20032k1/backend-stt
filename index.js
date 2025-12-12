@@ -79,8 +79,15 @@ app.post("/api/stt", upload.single("file"), async (req, res) => {
 });
 
 
+
+
+app.get("/healthz", (req, res) => {
+    res.status(200).send("OK");
+});
+
 // ===== Start server =====
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 STT backend running on port ${PORT}`);
 });
-
+server.keepAliveTimeout = 120000;
+server.headersTimeout = 120000;
