@@ -80,6 +80,7 @@ app.post("/api/stt", upload.single("file"), async (req, res) => {
 
 
 // ===== Start server =====
-app.listen(PORT, () => {
-    console.log(`🚀 STT backend running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 STT backend running on port ${PORT}`);
 });
+
